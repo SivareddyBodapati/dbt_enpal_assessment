@@ -34,3 +34,11 @@ models:
     # Config indicated by + and applies to all files under models/example/
     +schema: pipedrive_analytics
     +materialized: table
+
+    intermediate:
+      +materialized: view
+
+    staging:
+      +materialized: view
+
+

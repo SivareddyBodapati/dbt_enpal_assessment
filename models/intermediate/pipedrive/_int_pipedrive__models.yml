@@ -1,0 +1,15 @@
+# The test here in this yml file represents generic test, we can addd singular test as custom sql file in the tests/name.sql file
+version: 2
+
+models:
+  - name: int_pipedrive__field_options
+    description: |
+      * One row per Pipedrive field option. 
+      * Unpivoted from the JSON array of options in the fields table.
+    columns:
+      - name: field_id
+        data_tests:
+          - not_null
+      - name: option_id 
+        data_tests:
+          - not_null

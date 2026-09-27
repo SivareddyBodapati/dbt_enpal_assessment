@@ -12,13 +12,18 @@ models:
           - not_null
 
   - name: fct_activities
-    description: One row per Pipedrive activity, enriched with the activity type name (kpi_name) and, for sales calls, its funnel_step label.
+    description: |
+     * One row per Pipedrive activity, enriched with the activity type name (kpi_name) and, for sales calls, its funnel_step label. 
+     * Note: activity_id is not guaranteed unique at the source — 11 IDs in the raw data are reused across two unrelated activities (different deal_id, type, and done status). 
+     * Treat activity_id as a natural key from Pipedrive rather than a guaranteed primary key; downstream aggregations here use count(distinct deal_id), not activity_id, so this does not affect the reporting model's counts.
     columns:
       - name: activity_id
-        description: Primary key. Unique identifier for the activity.
+        description: Identifier for the activity as sourced from Pipedrive. Known data quality issue, not guaranteed unique — see model description.
         data_tests:
-          - unique
           - not_null
+          - unique:
+              config:
+                severity: warn
       - name: activity_type
         description: Raw activity type code from Pipedrive, e.g. 'sc_2', 'follow_up'.
       - name: assigned_to_user_id
@@ -36,10 +41,9 @@ models:
       - name: kpi_name
         description: Name of the activity type, e.g. 'Sales Call 1', 'Follow Up Call'.
       - name: funnel_step
-        description: 'Step 2.1' for Sales Call 1, 'Step 3.1' for Sales Call 2, null otherwise.
+        description: Step 2.1 for Sales Call 1, 'Step 3.1' for Sales Call 2, null otherwise.
 
   - name: fct_deal_stage_changes
-    description: Dimensional model for Pipedrive stages
     description: |
      * One row per deal stage-entry event. 
      * A deal can enter the same stage multiple times; this table keeps every entry and lets downstream models decide how to aggregate. 

@@ -13,7 +13,7 @@
   "Implementation/Onboarding": "Step 7",
   "Follow-up/Customer Success": "Step 8",
   "Renewal/Expansion": "Step 9"
-} -%}  -- also can be defined in as a seed table (funnel_map.csv) and can be referenced here with  ref('funnel_map') for easier maintenance
+} -%}  -- also can be defined in as a seed table (funnel_step_map.csv) and can be referenced here with  ref('funnel_step_map') for easier maintenance
 
 with
 

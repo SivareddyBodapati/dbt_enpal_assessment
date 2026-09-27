@@ -13,7 +13,7 @@ models:
 
   - name: fct_activities
     description: |
-     * One row per Pipedrive activity, enriched with the activity type name (kpi_name) and, for sales calls, its funnel_step label. 
+     * One row per Pipedrive activity, enriched with the activity type name (kpi_name). 
      * Note: activity_id is not guaranteed unique at the source — 11 IDs in the raw data are reused across two unrelated activities (different deal_id, type, and done status). 
      * Treat activity_id as a natural key from Pipedrive rather than a guaranteed primary key; downstream aggregations here use count(distinct deal_id), not activity_id, so this does not affect the reporting model's counts.
     columns:
@@ -40,15 +40,13 @@ models:
         description: Due timestamp for the activity. Used as a stand-in for a completion date since the source has no separate completed_at field.
       - name: kpi_name
         description: Name of the activity type, e.g. 'Sales Call 1', 'Follow Up Call'.
-      - name: funnel_step
-        description: Step 2.1 for Sales Call 1, 'Step 3.1' for Sales Call 2, null otherwise.
 
   - name: fct_deal_stage_changes
     description: |
      * One row per deal stage-entry event. 
      * A deal can enter the same stage multiple times; this table keeps every entry and lets downstream models decide how to aggregate. 
-     * Enriched with the stage name (kpi_name) and its corresponding funnel_step label. 
-     * Rows from changed_field_key values other than 'stage_id' will have a null kpi_name and funnel_step.
+     * Enriched with the stage name (kpi_name).
+     * Rows from changed_field_key values other than 'stage_id' are filtered out upstream, before the join to dim_stages.
     columns:
       - name: deal_id
         description: Identifier of the deal that changed.
@@ -65,7 +63,5 @@ models:
       - name: new_value
         description: New value the field was changed to, stored as text.
       - name: kpi_name
-        description: Stage name this change corresponds to. Null when changed_field_key is not 'stage_id'.
-      - name: funnel_step
-        description: Funnel step label (Step 1-9) mapped from kpi_name. Null when changed_field_key is not 'stage_id'.
+        description: Stage name this change corresponds to.
   

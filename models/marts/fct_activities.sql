@@ -10,12 +10,7 @@ with
     activities_and_types_joined as (
         select
             activities.*,
-            activity_types.activity_type_name as  kpi_name,
-            case 
-                when activity_types.activity_type_name = 'Sales Call 1' then 'Step 2.1'
-                when activity_types.activity_type_name = 'Sales Call 2' then 'Step 3.1'
-                else null
-            end as funnel_step
+            activity_types.activity_type_name as  kpi_name
         from activities
         left join activity_types using (activity_type)
     )

@@ -7,33 +7,43 @@ with
 
     activities as (select * from {{ ref('fct_activities') }}),
 
+    funnel_step_map as (select * from {{ ref('funnel_step_map') }}),
+
     deals_report as (
         select 
-            date_trunc('month', changed_at) as due_month_date,
+            date(date_trunc('month', changed_at)) as due_month_date,
             kpi_name,
-            max(funnel_step) as funnel_step,
             count(distinct deal_id) as deals_count
         from deals
-        where kpi_name is not null
+        where kpi_name is not null and changed_field_key = 'stage_id'
         group by 1, 2
     ),
 
     activities_report as (
         select 
-            date_trunc('month', due_date) as due_month_date,
+            date(date_trunc('month', due_date)) as due_month_date,
             kpi_name,
-            max(funnel_step) as funnel_step,
             count(distinct deal_id) as deals_count
         from activities
-        where funnel_step is not null and is_done = true
+        where is_done = true
         group by 1, 2
     ),
 
-    final_report as (
+    combined_report as (
         select * from deals_report
         union all
         select * from activities_report
-    )
+    ),
+
+    final_report as (
+        select 
+            due_month_date,
+            kpi_name,
+            funnel_step_map.funnel_step,
+            combined_report.deals_count
+        from combined_report
+        inner join funnel_step_map using (kpi_name)
+    )   
 
 select 
     to_char(due_month_date, 'Month YYYY') as month, 

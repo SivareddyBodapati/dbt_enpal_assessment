@@ -24,13 +24,7 @@ with
     deals_and_stages_joined as (
         select
             deals.*,
-            stages.stage_name as kpi_name,
-            case 
-            {% for stage, kpi in funnel_map.items() %}
-                when stage_name = '{{ stage }}' then '{{ kpi }}'
-            {% endfor %} 
-                else null 
-            end as funnel_step
+            stages.stage_name as kpi_name
         from deals
         left join stages on deals.new_value = cast(stages.stage_id as varchar) and deals.changed_field_key = 'stage_id'
     )

@@ -3,4 +3,65 @@ version: 2
 
 models:
   - name: dim_stages
+    description: One row per Pipedrive deal stage. Dimension table mapping a stage's ID to its display name, used to enrich deal stage-change events.
+    columns:
+      - name: stage_id
+        description: Primary key. Unique identifier for the stage in Pipedrive.
+        data_tests:
+          - unique
+          - not_null
+
+  - name: fct_activities
+    description: One row per Pipedrive activity, enriched with the activity type name (kpi_name) and, for sales calls, its funnel_step label.
+    columns:
+      - name: activity_id
+        description: Primary key. Unique identifier for the activity.
+        data_tests:
+          - unique
+          - not_null
+      - name: activity_type
+        description: Raw activity type code from Pipedrive, e.g. 'sc_2', 'follow_up'.
+      - name: assigned_to_user_id
+        description: User the activity is assigned to.
+      - name: deal_id
+        description: Deal this activity is associated with.
+        data_tests:
+          - not_null
+      - name: is_done
+        description: Whether the activity has been completed.
+        data_tests:
+          - not_null
+      - name: due_date
+        description: Due timestamp for the activity. Used as a stand-in for a completion date since the source has no separate completed_at field.
+      - name: kpi_name
+        description: Name of the activity type, e.g. 'Sales Call 1', 'Follow Up Call'.
+      - name: funnel_step
+        description: 'Step 2.1' for Sales Call 1, 'Step 3.1' for Sales Call 2, null otherwise.
+
+  - name: fct_deal_stage_changes
     description: Dimensional model for Pipedrive stages
+    description: |
+     * One row per deal stage-entry event. 
+     * A deal can enter the same stage multiple times; this table keeps every entry and lets downstream models decide how to aggregate. 
+     * Enriched with the stage name (kpi_name) and its corresponding funnel_step label. 
+     * Rows from changed_field_key values other than 'stage_id' will have a null kpi_name and funnel_step.
+    columns:
+      - name: deal_id
+        description: Identifier of the deal that changed.
+        data_tests:
+          - not_null
+      - name: changed_at
+        description: Timestamp the change was recorded.
+        data_tests:
+          - not_null
+      - name: changed_field_key
+        description: Which field changed on the deal, e.g. 'stage_id', 'user_id', 'lost_reason'.
+        data_tests:
+          - not_null
+      - name: new_value
+        description: New value the field was changed to, stored as text.
+      - name: kpi_name
+        description: Stage name this change corresponds to. Null when changed_field_key is not 'stage_id'.
+      - name: funnel_step
+        description: Funnel step label (Step 1-9) mapped from kpi_name. Null when changed_field_key is not 'stage_id'.
+  

@@ -1,5 +1,4 @@
 -- rep_sales_funnel_monthly.sql
--- 
 
 with
 
@@ -46,7 +45,7 @@ with
     )   
 
 select 
-    to_char(due_month_date, 'Month YYYY') as month, 
+    to_char(due_month_date, 'FMMonth YYYY') as month, 
     kpi_name,
     funnel_step,
     deals_count

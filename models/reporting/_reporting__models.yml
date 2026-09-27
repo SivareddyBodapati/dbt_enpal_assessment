@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: rep_sales_funnel_monthly
+    description: Reporting model for sales funnel metrics on a monthly basis
+    columns:
+      - name: month
+        description: The month for which the sales funnel metrics are calculated
+     
+    

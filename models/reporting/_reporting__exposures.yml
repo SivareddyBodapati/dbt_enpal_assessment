@@ -1,0 +1,14 @@
+version: 2
+
+exposures:
+  - name: sales_funnel_monthly_dashboard
+    label: Sales Funnel Monthly Dashboard
+    type: dashboard
+    url: https://example.com/dashboards/sales-funnel-monthly
+    description: Monthly dashboard for tracking sales funnel metrics
+    depends_on:
+      - ref('rep_sales_funnel_monthly')
+    owner:
+      name: Sivareddy Bodapati
+      email: sivareddy.bodapati@enpal.com
+    
